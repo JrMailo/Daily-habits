@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Habit Tracker Lite</title>
+<style>
+  /* Prosty i nowoczesny styl */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  #app {
+    background: white;
+    padding: 20px 30px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+
+  form {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    outline: none;
+  }
+
+  button {
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  li {
+    background: #e9ecef;
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  li.completed {
+    background: #d4edda;
+    text-decoration: line-through;
+    color: #155724;
+  }
+
+  .habit-name {
+    flex: 1;
+  }
+
+  .btn-toggle {
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+  }
+
+  .btn-delete {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+
+  #emptyMsg {
+    color: #666;
+    text-align: center;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <h1>Daily Habit Tracker Lite</h1>
+  
+  <form id="habitForm">
+    <input type="text" id="habitInput" placeholder="Add a new habit..." required />
+    <button type="submit">Add</button>
+  </form>
+
+  
+  <ul id="habitList">
+    
+  </ul>
+
+  <p id="emptyMsg">No habits to track. Add yours first!</p>
+</div>
+
+<script>
+  
+  const habitForm = document.getElementById('habitForm');
+  const habitInput = document.getElementById('habitInput');
+  const habitList = document.getElementById('habitList');
+  const emptyMsg = document.getElementById('emptyMsg');
+
+  
+  let habits = [];
+
+  
+  function renderHabits() {
+    habitList.innerHTML = ''; 
+
+    if(habits.length === 0) {
+      emptyMsg.style.display = 'block';
+      return;
+    } else {
+      emptyMsg.style.display = 'none';
+    }
+
+    habits.forEach((habit, index) => {
+      const li = document.createElement('li');
+      li.className = habit.completed ? 'completed' : '';
+
+      
+      const span = document.createElement('span');
+      span.textContent = habit.name;
+      span.className = 'habit-name';
+
+      
+      const toggleBtn = document.createElement('button');
+      toggleBtn.textContent = habit.completed ? '✔' : '✗';
+      toggleBtn.className = 'btn-toggle';
+      toggleBtn.title = 'Mark as done/not done';
+      toggleBtn.addEventListener('click', () => {
+        habits[index].completed = !habits[index].completed;
+        saveHabits();
+        renderHabits();
+      });
+
+     
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '🗑';
+      deleteBtn.className = 'btn-delete';
+      deleteBtn.title = 'Usuń nawyk';
+      deleteBtn.addEventListener('click', () => {
+        habits.splice(index, 1);
+        saveHabits();
+        renderHabits();
+      });
+
+      li.appendChild(toggleBtn);
+      li.appendChild(span);
+      li.appendChild(deleteBtn);
+      habitList.appendChild(li);
+    });
+  }
+
+  
+  function saveHabits() {
+    localStorage.setItem('habits', JSON.stringify(habits));
+  }
+
+  
+  function loadHabits() {
+    const saved = localStorage.getItem('habits');
+    if(saved) {
+      habits = JSON.parse(saved);
+    }
+  }
+
+  
+  habitForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = habitInput.value.trim();
+    if(name === '') return;
+
+    habits.push({ name, completed: false });
+    saveHabits();
+    renderHabits();
+    habitInput.value = '';
+    habitInput.focus();
+  });
+
+  
+  loadHabits();
+  renderHabits();
+
+</script>
+
+</body>
+</html>
