@@ -1120,24 +1120,6 @@
       habitList.appendChild(li);
     });
 
-    // 添加事件监听
-    document.querySelectorAll('.btn-toggle').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const habitId = e.target.dataset.id;
-        toggleHabitCheckIn(habitId);
-        renderAll();
-      });
-    });
-
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        if (confirm('确定要删除这个习惯吗？所有打卡记录都将丢失。')) {
-          const habitId = e.target.dataset.id;
-          deleteHabit(habitId);
-          renderAll();
-        }
-      });
-    });
   }
 
   function escapeHtml(text) {
@@ -1495,6 +1477,29 @@
   }
 
   // ==================== 事件监听 ====================
+  
+  // 习惯列表事件委托（打卡和删除）
+  document.getElementById('habitList').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    
+    const habitId = btn.dataset.id;
+    if (!habitId) return;
+    
+    // 打卡按钮
+    if (btn.classList.contains('btn-toggle')) {
+      toggleHabitCheckIn(habitId);
+      renderAll();
+    }
+    
+    // 删除按钮
+    if (btn.classList.contains('btn-delete')) {
+      if (confirm('确定要删除这个习惯吗？所有打卡记录都将丢失。')) {
+        deleteHabit(habitId);
+        renderAll();
+      }
+    }
+  });
   
   // 标签页切换
   document.querySelectorAll('.tab-btn').forEach(btn => {
