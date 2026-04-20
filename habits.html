@@ -892,16 +892,19 @@
     // 找出所有习惯都完成的日期
     const allCompletedDates = [];
     allDates.forEach(date => {
-      const allDone = habitsList.every(habit => {
-        // 检查该习惯在该日期是否打卡，或者该日期在习惯创建之前
-        const habitCreated = habit.createdAt ? parseDate(habit.createdAt) : null;
+      // 找出在该日期或之前已创建的习惯
+      const activeHabits = habitsList.filter(habit => {
+        if (!habit.createdAt) return true;
+        const habitCreated = parseDate(habit.createdAt);
         const checkDate = parseDate(date);
-        
-        // 如果习惯还没创建，不算
-        if (habitCreated && checkDate < habitCreated) {
-          return true; // 习惯创建前的日期不影响
-        }
-        
+        return checkDate >= habitCreated;
+      });
+
+      // 如果该日期没有活跃习惯，跳过
+      if (activeHabits.length === 0) return;
+
+      // 检查所有活跃习惯是否都完成
+      const allDone = activeHabits.every(habit => {
         return habit.checkIns && habit.checkIns[date] === true;
       });
       
@@ -1035,7 +1038,12 @@
       if (!habit.checkIns) {
         habit.checkIns = {};
       }
-      habit.checkIns[date] = !habit.checkIns[date];
+      const isCurrentlyCompleted = habit.checkIns[date] === true;
+      if (isCurrentlyCompleted) {
+        delete habit.checkIns[date];
+      } else {
+        habit.checkIns[date] = true;
+      }
       saveHabits();
     }
   }
