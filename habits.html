@@ -1488,16 +1488,25 @@
     
     // 打卡按钮
     if (btn.classList.contains('btn-toggle')) {
+      e.preventDefault();
+      e.stopPropagation();
       toggleHabitCheckIn(habitId);
       renderAll();
+      return;
     }
     
     // 删除按钮
     if (btn.classList.contains('btn-delete')) {
-      if (confirm('确定要删除这个习惯吗？所有打卡记录都将丢失。')) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const confirmed = window.confirm('确定要删除这个习惯吗？所有打卡记录都将丢失。');
+      
+      if (confirmed === true) {
         deleteHabit(habitId);
         renderAll();
       }
+      return;
     }
   });
   
